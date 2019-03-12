@@ -63,10 +63,13 @@ const sendHello = () =>{
       //pyshell.pythonPath = 'usr/bin';
       pyshell.stdin.write(message);
       pyshell.on('message', function (message){
-        //console.log("Python Debug: "+message);
+        console.log("Python Debug: "+message);
         if(message.indexOf("<+>")!=-1){
-          console.log("NodeJS Receive: "+message.split("|")[1]);
-
+          console.log("Auth!!!!");
+          var rece_mac = message.split("|")[1];
+          var command = directory+'/ShellCall/acceptARP.sh '+rece_mac;
+          console.log("NodeJS debug: "+command);
+          shell.exec(command);
           authETH=true;
           lock=true;
           //sendHello();

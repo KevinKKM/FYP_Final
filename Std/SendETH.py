@@ -77,7 +77,7 @@ def convertstrmac(raw_mac):
 def Receive(src,dst,type,payload):
 	t = threading.currentThread()
 	while getattr(t, "do_run", True):
-		print("Listening...")
+		#print("Listening...")
 		try:
 			s.settimeout(1.0)
 			message = s.recvfrom(4096)
@@ -87,9 +87,9 @@ def Receive(src,dst,type,payload):
 				data = message[0].encode('hex')[28:]
 #				data = data.encode('hex')[:-28]
 				#data = aes_decrypt(data,keyc)
-				print(data.decode('hex'))
+				#print(data.decode('hex'))
 				if(data.decode('hex')==keyc):
-					print(keyc)
+					#print(keyc)
                     #macarr = []
                     #macarr.append(RecMac[0:2])
                     #macarr.append(RecMac[2:4])
@@ -99,17 +99,18 @@ def Receive(src,dst,type,payload):
                     #macarr.append(RecMac[12:14])
                     #RecMac = ".".join(macarr)
 					print("<+>|"+convertstrmac(RecMac))
-					os.system("/home/kevin/command/enableARP.sh")
+					strmac = convertstrmac(RecMac)
+					os.system("./hell/acceptARP "+strmac)
 					exit()
 				if(data.find(':')!=-1):
 					msg = data.split(":")[0]
 					session = data.split(":")[1]
 					ip = data.split(":")[2]
-					print("Send to :%s"%ip)
+					#print("Send to :%s"%ip)
 					sendmsg = msg+":"+session+":"
 					while(len(sendmsg)%16!=0):
 						sendmsg += "0"
-					print("Message to send : %s"%sendmsg)
+					#print("Message to send : %s"%sendmsg)
 #					print(sendmsg)
 					#SendDst = convertmac(RecMac)
 					#sendtype = type = chr(int("aa",16))+chr(int("ab",16))
@@ -120,7 +121,7 @@ def Receive(src,dst,type,payload):
 					break
 			elif(rectype=='aaab'):
 				data = message[0].encode('hex')[28:]
-				print("Auth Ethernet Frame")
+				#print("Auth Ethernet Frame")
 		except timeout:
 			#print("Time out!!")
 			t.do_run = False
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     if(packtype==2):
         keyhash = sendmsg.split(":")[0]
         realkey = sendmsg.split(":")[1]
-        print("Ethernet Hello message")
+        #print("Ethernet Hello message")
         #print("Local IP address: %s"%MyIP)
         #print("Local Mac address: %s"%str_mac)
         #print("The key hash: %s"%keyhash)
@@ -167,7 +168,7 @@ if __name__ == '__main__':
         #print("Encrypted: %s"%payload.decode('hex'))
         decryptmsg = aes_decrypt(payload,realkey).split(magic_str)[0]
         decryptmac = aes_decrypt(payload,realkey).split(magic_str)[1]
-        print(aes_decrypt(payload,realkey).split(magic_str))
+        #print(aes_decrypt(payload,realkey).split(magic_str))
         usetype = authtype
 
     send_ether(src,dst,usetype,payload)

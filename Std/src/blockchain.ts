@@ -291,7 +291,8 @@ const checkReadyStatus = (): boolean => {
     if(validateIdentifier(getPublicFromWallet())){
       removeConnection();
       readyStatus = true;
-      shell.exec("echo 'Goal!!' ")
+      //shell.exec(directory+'/ShellCall/protectARP.sh');
+      //shell.exec(directory+'/ShellCall/clear_arp.sh');
       return readyStatus;
     }
     else{
