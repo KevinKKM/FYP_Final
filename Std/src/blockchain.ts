@@ -15,7 +15,8 @@ var sizeof = require('object-sizeof');
 var readyStatus:boolean = false;
 
 const EC = new ec('secp256k1');
-
+var shell = require('shelljs');
+var directory = shell.pwd().toString();
 class Block {
 
     public index: number;
@@ -290,6 +291,7 @@ const checkReadyStatus = (): boolean => {
     if(validateIdentifier(getPublicFromWallet())){
       removeConnection();
       readyStatus = true;
+      shell.exec("echo 'Goal!!' ")
       return readyStatus;
     }
     else{
