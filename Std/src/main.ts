@@ -23,7 +23,8 @@ const p2pPort: number = config.get('Server.P2P_PORT');
 const discoveryPort: number = config.get('Server.DISCOVERY_PORT');
 const inPort: number = config.get('Server.IN_PORT');
 const outPort: number = config.get('Server.OUT_PORT');
-
+var shell = require('shelljs');
+var directory = shell.pwd().toString();
 initP2PServer(p2pPort); //call by p2p.ts
 initDiscoveryServer(discoveryPort); // call by protocol
 initInServer(inPort); //firewall, call by communication
@@ -34,5 +35,6 @@ process.stdin.resume();
 
 process.on('SIGINT', function () {
   console.log('Good Bye!!');
+  shell.exec(directory+'/ShellCall/enableARP.sh');
   process.exit();
 });
