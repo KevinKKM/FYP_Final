@@ -36,5 +36,6 @@ process.stdin.resume();
 process.on('SIGINT', function () {
   console.log('Good Bye!!');
   shell.exec(directory+'/ShellCall/enableARP.sh');
+  shell.exec(directory+'/ShellCall/IPenable.sh');
   process.exit();
 });

@@ -67,7 +67,7 @@ const sendHello = () =>{
         if(message.indexOf("<+>")!=-1){
           console.log("Auth!!!!");
           var rece_mac = message.split("|")[1];
-          var command = directory+'/ShellCall/acceptARP.sh '+rece_mac;
+          var command = directory+'/ShellCall/acceptmac.sh '+rece_mac;
           console.log("NodeJS debug: "+command);
           shell.exec(command);
           authETH=true;

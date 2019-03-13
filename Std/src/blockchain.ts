@@ -291,8 +291,10 @@ const checkReadyStatus = (): boolean => {
     if(validateIdentifier(getPublicFromWallet())){
       removeConnection();
       readyStatus = true;
-      //shell.exec(directory+'/ShellCall/protectARP.sh');
-      //shell.exec(directory+'/ShellCall/clear_arp.sh');
+      console.log("protection mode!!");
+      shell.exec(directory+'/ShellCall/protectARP.sh');
+      shell.exec(directory+'/ShellCall/clear_arp.sh');
+      shell.exec(directory+'/ShellCall/IPprotect.sh');
       return readyStatus;
     }
     else{

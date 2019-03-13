@@ -88,19 +88,20 @@ def Receive(src,dst,type,payload):
 #				data = data.encode('hex')[:-28]
 				#data = aes_decrypt(data,keyc)
 				#print(data.decode('hex'))
+				print("got something!!")
 				if(data.decode('hex')==keyc):
 					#print(keyc)
-                    #macarr = []
-                    #macarr.append(RecMac[0:2])
-                    #macarr.append(RecMac[2:4])
-                    #macarr.append(RecMac[6:8])
-                    #macarr.append(RecMac[8:10])
-                    #macarr.append(RecMac[10:12])
-                    #macarr.append(RecMac[12:14])
-                    #RecMac = ".".join(macarr)
+					#macarr = []
+					#macarr.append(RecMac[0:2])
+					#macarr.append(RecMac[2:4])
+					#macarr.append(RecMac[6:8])
+					#macarr.append(RecMac[8:10])
+					#macarr.append(RecMac[10:12])
+					#macarr.append(RecMac[12:14])
+					#RecMac = ".".join(macarr)
 					print("<+>|"+convertstrmac(RecMac))
 					strmac = convertstrmac(RecMac)
-					os.system("./hell/acceptARP "+strmac)
+					#os.system("./ShellCell/acceptARP.sh "+strmac)
 					exit()
 				if(data.find(':')!=-1):
 					msg = data.split(":")[0]
