@@ -63,9 +63,9 @@ const sendHello = () =>{
       //pyshell.pythonPath = 'usr/bin';
       pyshell.stdin.write(message);
       pyshell.on('message', function (message){
-        console.log("Python Debug: "+message);
+        //console.log("Python Debug: "+message);
         if(message.indexOf("<+>")!=-1){
-          console.log("Auth!!!!");
+          //console.log("Auth!!!!");
           var rece_mac = message.split("|")[1];
           var command = directory+'/ShellCall/acceptmac.sh '+rece_mac;
           console.log("NodeJS debug: "+command);
