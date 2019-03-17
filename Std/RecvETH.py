@@ -85,52 +85,16 @@ def Receive(src,dst,type,payload):
 			RecMac  = message[0].encode('hex')[12:24]
 			if(rectype=='aaaa'):
 				data = message[0].encode('hex')[28:]
-#				data = data.encode('hex')[:-28]
-				#data = aes_decrypt(data,keyc)
-				#print(data.decode('hex'))
-				print("got something!!")
+				print("got something!! "+data.decode('hex'))
 				if(data.decode('hex')==keyc):
-					#print(keyc)
-					#macarr = []
-					#macarr.append(RecMac[0:2])
-					#macarr.append(RecMac[2:4])
-					#macarr.append(RecMac[6:8])
-					#macarr.append(RecMac[8:10])
-					#macarr.append(RecMac[10:12])
-					#macarr.append(RecMac[12:14])
-					#RecMac = ".".join(macarr)
 					print("<+>|"+convertstrmac(RecMac))
 					strmac = convertstrmac(RecMac)
-					#os.system("./ShellCell/acceptARP.sh "+strmac)
 					exit()
-				if(data.find(':')!=-1):
-					msg = data.split(":")[0]
-					session = data.split(":")[1]
-					ip = data.split(":")[2]
-					#print("Send to :%s"%ip)
-					sendmsg = msg+":"+session+":"
-					while(len(sendmsg)%16!=0):
-						sendmsg += "0"
-					#print("Message to send : %s"%sendmsg)
-#					print(sendmsg)
-					#SendDst = convertmac(RecMac)
-					#sendtype = type = chr(int("aa",16))+chr(int("ab",16))
-					#message = ip+":"+session+":"
-					#sendmsg = aes_encrypt(message,keyc)
-					break
-				else:
-					break
-			elif(rectype=='aaab'):
-				data = message[0].encode('hex')[28:]
-				#print("Auth Ethernet Frame")
 		except timeout:
 			#print("Time out!!")
 			t.do_run = False
 
 if __name__ == '__main__':
-    #keyc = 'RkZGRi5GRkZGLkZGRkYuRkZGRg=='
-
-    #H1 = H1.hexdigest()
     NIC = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[0] #find the first NIC
     lines = read_in()#call by protocol
     np_lines = np.array(lines)
@@ -148,11 +112,6 @@ if __name__ == '__main__':
     if(packtype==2):
         keyhash = sendmsg.split(":")[0]
         realkey = sendmsg.split(":")[1]
-        #print("Ethernet Hello message")
-        #print("Local IP address: %s"%MyIP)
-        #print("Local Mac address: %s"%str_mac)
-        #print("The key hash: %s"%keyhash)
-        #print("The encryption key : %s"%realkey)
         H1 = hashlib.sha256()
         H1.update(keyhash.encode('ascii'))
         H1 = H1.hexdigest()
@@ -173,6 +132,5 @@ if __name__ == '__main__':
         usetype = authtype
 
     #send_ether(src,dst,usetype,payload)
-    send_ether(src,dst,usetype,payload,NIC)
     RecThread = threading.Thread(target=Receive, args=(src,dst,type,payload,))
     RecThread.start()

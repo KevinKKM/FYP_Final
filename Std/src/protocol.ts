@@ -3,12 +3,11 @@ import * as CryptoJS from 'crypto-js';
 import * as ip from 'ip';
 import {getChainKeyFromChain,getLatestBlock,getPublicFromWallet,getChainLength,
   validateIdentifier,checkReadyStatus} from './blockchain';
-import {getSockets,connectToPeers,JSONToObject} from './p2p';
+import {getSockets,connectToPeers,JSONToObject,getAliveConn} from './p2p';
 
 var flag = false;
 var lock = false;
 var chance = 10;
-var authETH = false;
 var shell = require('shelljs');
 const config = require('config');
 var directory = shell.pwd().toString();
@@ -18,6 +17,11 @@ enum MessageType {
     AUTH_RESPONSE = 1,
     ETH_HELLO = 2,
     ETH_AUTH = 3
+}
+
+const setFlag = (setvalue: boolean) => {
+  flag = setvalue;
+  lock = setvalue;
 }
 
 function msleep(n) {
@@ -70,7 +74,6 @@ const sendHello = () =>{
           var command = directory+'/ShellCall/acceptmac.sh '+rece_mac;
           console.log("NodeJS debug: "+command);
           shell.exec(command);
-          authETH=true;
           lock=true;
           //sendHello();
         }
@@ -80,6 +83,37 @@ const sendHello = () =>{
           });
         }
       }
+
+      const ReceiveEthernet = () =>{
+        const socket = dgram.createSocket("udp4");
+        socket.bind(function () {
+          socket.setBroadcast(true);
+        });
+        if (!checkReadyStatus()){
+          const chainHash = CryptoJS.SHA256(getChainKeyFromChain()).toString()+":"+getChainKeyFromChain();
+          //console.log('// DEBUG: my hash: ' + chainHash);
+          const message = new Buffer(JSON.stringify(new Message(MessageType.ETH_HELLO,chainHash)));
+          let {PythonShell} = require('python-shell');
+          let pyshell = new PythonShell(directory+'/RecvETH.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'] });
+          //pyshell.pythonPath = 'usr/bin';
+          pyshell.stdin.write(message);
+          pyshell.on('message', function (message){
+            console.log("Python Debug: "+message);
+            if(message.indexOf("<+>")!=-1){
+              //console.log("Auth!!!!");
+              var rece_mac = message.split("|")[1];
+              var command = directory+'/ShellCall/acceptmac.sh '+rece_mac;
+              console.log("NodeJS debug: "+command);
+              shell.exec(command);
+              lock=true;
+              //sendHello();
+            }
+                });
+          pyshell.end(function(err,code,signal){
+            if (err) throw err;
+              });
+            }
+          }
 
       const sendEthernetAESAuth = () =>{
         const socket = dgram.createSocket("udp4");
@@ -134,7 +168,10 @@ const EthProcessServer = (discoveryPort: number) => {
           sendEthernetHello();
           //sendEthernetAESAuth();
         }
-        }
+      }else{
+        ReceiveEthernet();
+        console.log("I am the part of the Network!!!");
+      }
     },1000);
   })
 }
@@ -223,7 +260,7 @@ const initMessageHandler = (server : dgram.Socket) => {
                   console.log("// DEBUG: trying to connect with :" + rinfo.address + ':' + config.get('Server.P2P_PORT'));
                   flag = true;
                   connectToPeers('ws://' + rinfo.address + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
-
+                  console.log("After connectToPeers");
                 }
               }
             break;
@@ -235,4 +272,4 @@ const initMessageHandler = (server : dgram.Socket) => {
   });
 };
 
-export {initDiscoveryServer,sendHello,EthProcessServer};
+export {initDiscoveryServer,sendHello,EthProcessServer,setFlag};

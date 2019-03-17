@@ -12,9 +12,10 @@ import {
 } from './blockchain';
 import {Transaction} from './transaction';
 import {getTransactionPool} from './transactionPool';
+import {setFlag} from './protocol';
 
 const sockets: WebSocket[] = [];
-
+var alive_connection = 0;
 enum MessageType {
     QUERY_LATEST = 0,
     QUERY_ALL = 1,
@@ -28,6 +29,10 @@ enum MessageType {
 class Message {
     public type: MessageType;
     public data: any;
+}
+
+const getAliveConn = () => {
+  return alive_connection;
 }
 
 const initP2PServer = (p2pPort: number) => {
@@ -203,6 +208,10 @@ const initErrorHandler = (ws: WebSocket) => {
     const closeConnection = (myWs: WebSocket) => {
         console.log('[!] Connection failed to peer: ' + myWs.url);
         sockets.splice(sockets.indexOf(myWs), 1);
+        if(getAliveConn()==0){
+          setFlag(false);
+        }
+
     };
     ws.on('close', () => closeConnection(ws));
     ws.on('error', () => closeConnection(ws));
@@ -257,6 +266,7 @@ const connectToPeers = (newPeer: string, chainKey: string): void => {
                 if (message.type == MessageType.CHAIN_KEY_VERIFY) {
                     if (message.data == 'true') {
                         console.log("[*] Auth success! Init connection");
+                        alive_connection++;
                         initConnection(ws);
                     }
                     else {
@@ -275,6 +285,7 @@ const connectToPeers = (newPeer: string, chainKey: string): void => {
     });
     ws.on('close', () => {
         console.log('[!] connection failed');
+        alive_connection--;
     });
 };
 
@@ -289,4 +300,4 @@ const broadCastTransactionPool = () => {
 };
 
 export { connectToPeers, broadcastLatest, broadCastTransactionPool,
-  initP2PServer, getSockets, removeConnection, JSONToObject};
+  initP2PServer, getSockets, removeConnection, JSONToObject, getAliveConn};
