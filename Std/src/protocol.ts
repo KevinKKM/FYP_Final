@@ -152,25 +152,28 @@ const EthProcessServer = (discoveryPort: number) => {
     var address = ethserver.address();
     console.log("Using for ethernet only");
     setInterval(function(){
-      if (checkReadyStatus() && !flag){
+      if (checkReadyStatus()){
           //sendHello();
-          if(lock){
-          console.log('[^] Ethernet connection success, wait for '+chance+" second");
-          msleep(1000);
-          sendHello();
-          chance--;
-          if(chance==0){
-            chance = 10;
-            lock=false;
-          }
-        }else{
-          console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
-          sendEthernetHello();
-          //sendEthernetAESAuth();
+      if(!flag){
+        if(lock){
+        console.log('[^] Ethernet connection success, wait for '+chance+" second");
+        msleep(1000);
+        sendHello();
+        chance--;
+        if(chance==0){
+          chance = 10;
+          lock=false;
         }
+      }else{
+        console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
+        sendEthernetHello();
+        //sendEthernetAESAuth();
+      }
       }else{
         ReceiveEthernet();
         console.log("I am the part of the Network!!!");
+      }
+
       }
     },1000);
   })
