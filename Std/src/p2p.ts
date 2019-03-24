@@ -16,6 +16,10 @@ import {setFlag} from './protocol';
 
 const sockets: WebSocket[] = [];
 var alive_connection = 0;
+var shell = require('shelljs');
+var current_addr = "";
+var directory = shell.pwd().toString();
+var enable_auth_arp = "";
 enum MessageType {
     QUERY_LATEST = 0,
     QUERY_ALL = 1,
@@ -40,6 +44,7 @@ const initP2PServer = (p2pPort: number) => {
     server.on('connection', (ws: WebSocket, req) => {
         const ip = req.connection.remoteAddress;
         console.log('[+] Connection from IP:' + ip);
+        current_addr = ip.split(":")[ip.split(":").length-1];
         initConnection(ws);
     });
     console.log('[*] Listening websocket p2p port on: ' + p2pPort);
@@ -47,6 +52,10 @@ const initP2PServer = (p2pPort: number) => {
 
 const getSockets = () => sockets;
 
+const EnableAuth = () => {
+  console.log("Enable Auth");
+  shell.exec(enable_auth_arp);
+};
 //Create the websocket (Constructure the Socket)
 const initConnection = (ws: WebSocket) => {
     sockets.push(ws);
@@ -57,6 +66,10 @@ const initConnection = (ws: WebSocket) => {
     if (getLatestBlock() === undefined){
         write(ws, authReqMsg());
         console.log('[*] Event: Send Authentication request');
+        console.log(current_addr);
+        var command = directory+'/ShellCall/Authaccept.sh '+current_addr;
+
+        enable_auth_arp = command;
     }
 
     // query transactions pool only some time after chain query
@@ -300,4 +313,4 @@ const broadCastTransactionPool = () => {
 };
 
 export { connectToPeers, broadcastLatest, broadCastTransactionPool,
-  initP2PServer, getSockets, removeConnection, JSONToObject, getAliveConn};
+  initP2PServer, getSockets, removeConnection, JSONToObject, getAliveConn, EnableAuth};

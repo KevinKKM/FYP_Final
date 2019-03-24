@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 //import * as si from 'systeminformation';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { ec } from 'elliptic';
-import {broadcastLatest, broadCastTransactionPool,removeConnection} from './p2p';
+import {broadcastLatest, broadCastTransactionPool,removeConnection,EnableAuth} from './p2p';
 import {
     getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut, TxIn, TxOut, getTransactionId
 } from './transaction';
@@ -292,9 +292,10 @@ const checkReadyStatus = (): boolean => {
       removeConnection();
       readyStatus = true;
       console.log("protection mode!!");
-      //shell.exec(directory+'/ShellCall/protectARP.sh');
-      //shell.exec(directory+'/ShellCall/clear_arp.sh');
-      //shell.exec(directory+'/ShellCall/IPprotect.sh');
+      shell.exec(directory+'/ShellCall/protectARP.sh');
+      shell.exec(directory+'/ShellCall/clear_arp.sh');
+      shell.exec(directory+'/ShellCall/IPprotect.sh');
+      EnableAuth();
       return readyStatus;
     }
     else{

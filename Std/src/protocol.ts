@@ -89,7 +89,7 @@ const sendHello = () =>{
         socket.bind(function () {
           socket.setBroadcast(true);
         });
-        if (!checkReadyStatus()){
+        if (checkReadyStatus()){
           const chainHash = CryptoJS.SHA256(getChainKeyFromChain()).toString()+":"+getChainKeyFromChain();
           //console.log('// DEBUG: my hash: ' + chainHash);
           const message = new Buffer(JSON.stringify(new Message(MessageType.ETH_HELLO,chainHash)));
@@ -170,8 +170,20 @@ const EthProcessServer = (discoveryPort: number) => {
         //sendEthernetAESAuth();
       }
       }else{
+
+        if(lock){
+        console.log('[^] Ethernet connection success, wait for '+chance+" second");
+        msleep(1000);
+        sendHello();
+        chance--;
+        if(chance==0){
+          chance = 10;
+          lock=false;
+        }
+      }else{
         ReceiveEthernet();
         console.log("I am the part of the Network!!!");
+      }
       }
 
       }
@@ -262,6 +274,7 @@ const initMessageHandler = (server : dgram.Socket) => {
                 if(!socketList.includes(rinfo.address)){
                   console.log("// DEBUG: trying to connect with :" + rinfo.address + ':' + config.get('Server.P2P_PORT'));
                   flag = true;
+                  lock = false;
                   connectToPeers('ws://' + rinfo.address + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
                   console.log("After connectToPeers");
                 }

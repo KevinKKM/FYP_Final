@@ -37,5 +37,6 @@ process.on('SIGINT', function () {
   console.log('Good Bye!!');
   shell.exec(directory+'/ShellCall/enableARP.sh');
   shell.exec(directory+'/ShellCall/IPenable.sh');
+  shell.exec(directory+'/ShellCall/Reset.sh');
   process.exit();
 });
