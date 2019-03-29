@@ -7,7 +7,7 @@ import {
     getBlockchain, getMyUnspentTransactionOutputs, getUnspentTxOuts, sendTransaction, getAccountBalance,
     sendAuthTransaction, getAuthPool
 } from './blockchain';
-import {connectToPeers, getSockets, initP2PServer, removeConnection} from './p2p';
+import {connectToPeers, getSockets, initP2PServer, removeConnection,initWebInterface} from './p2p';
 import {UnspentTxOut} from './transaction';
 import {getTransactionPool} from './transactionPool';
 import {getPublicFromWallet, initWallet} from './wallet';
@@ -192,3 +192,4 @@ const initHttpServer = (myHttpPort: number) => {
 
 initHttpServer(httpPort);
 initP2PServer(p2pPort);
+initWebInterface(8008);

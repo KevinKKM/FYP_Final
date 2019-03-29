@@ -177,6 +177,35 @@ const broadcastLatestChain = (): void => {
     broadcast(responseChainMsg());
 };
 
+const initWebInterface = (p2pPort: number) => {
+  var http=require('http');
+  var fs=require('fs');
+  var express = require('express');
+  var app = express();
+  /*
+  http.createServer(function(req,res){
+      app.use(express.static('images'));
+    //fs.readFile('/home/kevin/FYP_final/Auth/src/interface.html',function(err, data){
+      fs.readFile('interface.php',function(err, data){
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      //console.log(data);
+      res.write(data);
+      res.end();
+    });
+  }).listen(p2pPort);
+  */
+    app.use(express.static('public'));
+    app.get('/', function(req, res){
+      res.sendFile("interface.htm");
+    });
+
+    var server = app.listen(p2pPort, function(){
+    var host = server.address().address;
+    var port = server.address().port;
+    });
+    console.log('[*] Listening websocket Web interface port on: ' + p2pPort);
+};
+
 const connectToPeers = (newPeer: string): void => {
     const ws: WebSocket = new WebSocket(newPeer);
     ws.on('open', () => {
@@ -197,4 +226,4 @@ const broadCastTransactionPool = () => {
     broadcast(responseTransactionPoolMsg());
 };
 
-export { connectToPeers, broadcastLatestChain, broadCastTransactionPool, initP2PServer, getSockets, removeConnection};
+export { connectToPeers, broadcastLatestChain, broadCastTransactionPool, initP2PServer, getSockets, removeConnection,initWebInterface};
