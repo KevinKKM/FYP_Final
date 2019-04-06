@@ -182,6 +182,9 @@ const initWebInterface = (p2pPort: number) => {
   var fs=require('fs');
   var express = require('express');
   var app = express();
+  var bodyParser = require('body-parser');
+  var tempData = [{"Number":0,"IPaddress":"192.168.2.128","type":"Router"},{"Number":1,"IPaddress":"192.168.2.132","type":"Router"},{"Number":2,"IPaddress":"192.168.2.134","type":"MultiLayer Switch"}];
+  var Authed_Device = [];
   /*
   http.createServer(function(req,res){
       app.use(express.static('images'));
@@ -195,10 +198,31 @@ const initWebInterface = (p2pPort: number) => {
   }).listen(p2pPort);
   */
     app.use(express.static('public'));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
     app.get('/', function(req, res){
-      res.sendFile("interface.htm");
+      res.sendFile("/home/kevin/FYP_final/Auth/public/interface.htm");
     });
+    app.get('/getAuthDevice', function(req,res){
+      res.send(Authed_Device);
+    });
+    app.post('/auth', function(req, res){
+      var IPAddr = req.body.IP_address;
+      var DeviceID = req.body.Number;
+      var DeviceType = req.body.Type;
+      console.log(DeviceID+" "+IPAddr+" "+DeviceType);
+      Authed_Device.push({
+        Number: DeviceID,
+        IP_address: IPAddr,
+        Type: DeviceType
+      });
+      res.send("Auth those network");
+      console.log(Authed_Device);
+    });
+    app.get('/scan', function(req, res){
 
+      res.send(tempData);
+    });
     var server = app.listen(p2pPort, function(){
     var host = server.address().address;
     var port = server.address().port;

@@ -1,6 +1,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/javascript/jquery-3.3.1.js"></script>
 <style>
 body {font-family: Arial;}
 
@@ -90,47 +91,33 @@ tr:nth-child(even) {
 <center><p>Authentication of Network Infrastructure Devices Using Blockchain</p></center>
 
 <div class="tab">
-  <button class="tablinks" onclick="openCity(event, 'unauth')">Discover Devices</button>
-  <button class="tablinks" onclick="openCity(event, 'auth')">Authenticated Devices</button>
-  <button class="tablinks" onclick="openCity(event, 'blockchain')">BlockChain</button>
+  <button class="tablinks" id="discover_btn" onclick="openCity(event, 'unauth')">Discover Devices</button>
+  <button class="tablinks" id="authdev_btn" onclick="openCity(event, 'auth')">Authenticated Devices</button>
+  <button class="tablinks" id="blockchain_btn" onclick="openCity(event, 'blockchain')">BlockChain</button>
 </div>
 
 <div id="unauth" class="tabcontent">
   <h3>Discover Devices</h3>
   <p>Temp data for Discover Devices</p>
-  <table>
-    <tr>
+  <table id=unauth_table>
+    <tr onclick="myFunction(this)">
       <th>Number</th>
-      <th>IP address</th>
+      <th>IP_address</th>
       <th>Type</th>
     </tr>
-  <tr>
-    <td>0</td>
-    <td>192.168.2.128</td>
-    <td>Router</td>
-  </tr>
-  <tr>
-    <td>1</td>
-    <td>192.168.2.132</td>
-    <td>Router</td>
-  </tr>
-  <tr>
-    <td>2</td>
-    <td>192.168.2.134</td>
-    <td>MultiLayer Switch</td>
-  </tr>
 </table>
-<button class="button button_unauth">Update</button>
-<button class="button button_unauth">Auth Devices</button>
+
+<button class="button button_unauth" value="Update" id="UnAuth" name=submit>Update</button>
+<button class="button button_unauth" value="Auth" name=submit id="Auth">Auth Devices</button>
 </div>
 
 <div id="auth" class="tabcontent">
   <h3>Authenticated Devices</h3>
   <p>Temp data for Authenticated Device</p>
-  <table>
+  <table id="Authed_Table">
     <tr>
       <th>Number</th>
-      <th>IP address</th>
+      <th>IP_address</th>
       <th>Type</th>
     </tr>
   <tr>
@@ -157,6 +144,60 @@ tr:nth-child(even) {
 </div>
 
 <script>
+
+$(function(){
+  $("#Auth").on('click', function(){
+    var auth_device = AuthProcess();
+    var message = JSON.stringify(auth_device);
+    console.log(message);
+  });
+  $("#authdev_btn").on('click',function(){
+    alert(1);
+    table_auth = document.getElementById("Authed_Table");
+    for(i = table_auth.rows.length-1;i > 0; i--){
+      table_auth.deleteRow(i);
+    }
+    $.ajax({
+      url: '/getAuthDevice',
+      ContentType: 'application/json',
+      success: function(response){
+        console.log(response);
+        $.each(response, function(key,val){
+          var row  = table_auth.insertRow(key+1);
+          var num = row.insertCell(0);
+          var ip = row.insertCell(1);
+          var device = row.insertCell(2);
+          num.innerHTML = val.Number;
+          ip.innerHTML = val.IP_address;
+          device.innerHTML = val.Type;
+    });
+      }
+  });
+});
+  $("#UnAuth").on('click', function(){
+    $.ajax({
+      url: '/scan',
+      ContentType: 'application/json',
+      success: function(response){
+        console.log(response);
+        var items = [];
+        table = document.getElementById("unauth_table");
+        ClearTable();
+        $.each(response, function(key,val){
+          var row  = table.insertRow(key+1);
+          var num = row.insertCell(0);
+          var ip = row.insertCell(1);
+          var device = row.insertCell(2);
+          num.innerHTML = key;
+          ip.innerHTML = val.IPaddress;
+          device.innerHTML = val.type;
+        });
+      }
+    });
+  });
+});
+
+
 function openCity(evt, cityName) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
@@ -169,6 +210,53 @@ function openCity(evt, cityName) {
   }
   document.getElementById(cityName).style.display = "block";
   evt.currentTarget.className += " active";
+}
+
+function ClearTable() {
+  table = document.getElementById("unauth_table");
+  for(i = table.rows.length-1;i > 0; i--){
+    table.deleteRow(i);
+  }
+}
+
+function AuthProcess() {
+  table = document.getElementById("unauth_table");
+  var reference_Row = table.rows[0];
+  var json = "[";
+  for(i = table.rows.length-1;i > 0; i--){
+    var row = table.rows[i];
+    var passdata = "{";
+    for(j = 0;j < row.cells.length;j++){
+      passdata += " "+"\""+reference_Row.cells[j].innerHTML+"\""+" : "+"\""+row.cells[j].innerHTML+"\""+" ";
+      if(j!=row.cells.length-1)passdata+=",";
+      //alert(row.cells[j].innerHTML);
+    }
+    passdata+="}";
+    console.log(passdata);
+    $.ajax({
+      type: "POST",
+      url: '/auth',
+      //data: JSON.parse('{ "IP_address" : "192.168.2.128" }'),
+      data: JSON.parse(passdata),
+      ContentType: 'application/json',
+      dataType:"json",
+      success: function(response){
+        console.log(response);
+      }
+    });
+    if(i!=1)passdata += ",";
+    json += passdata;
+    table.deleteRow(i);
+  }
+  json += "]";
+  console.log(json);
+  passdata = JSON.parse(json);
+  return passdata;
+}
+
+
+function myFunction(x) {
+  alert("Row index is: " + x.rowIndex);
 }
 </script>
 
