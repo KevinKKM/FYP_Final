@@ -170,7 +170,7 @@ const EthProcessServer = (discoveryPort: number) => {
         //sendEthernetAESAuth();
       }
       }else{
-
+        /*
         if(lock){
         console.log('[^] Ethernet connection success, wait for '+chance+" second");
         msleep(1000);
@@ -181,9 +181,10 @@ const EthProcessServer = (discoveryPort: number) => {
           lock=false;
         }
       }else{
-        ReceiveEthernet();
-        console.log("I am the part of the Network!!!");
-      }
+        */
+        //ReceiveEthernet();
+        //console.log("I am the part of the Network!!!");
+      //}
       }
 
       }
