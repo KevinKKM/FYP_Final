@@ -226,6 +226,7 @@ const senderlock = () => {
   var command = directory+'/ShellCall/IPenable.sh';
   console.log("NodeJS debug: "+command);
   shell.exec(command);
+  shell.exec(directory+'/ShellCall/firewallon.sh');
 }
 
 const initDiscoveryServer =(discoveryPort: number) => {
