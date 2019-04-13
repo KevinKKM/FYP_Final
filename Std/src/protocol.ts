@@ -157,7 +157,7 @@ const EthProcessServer = (discoveryPort: number) => {
       if(!flag){
         if(lock){
         console.log('[^] Ethernet connection success, wait for '+chance+" second");
-        msleep(1000);
+        msleep(100);
         sendHello();
         chance--;
         if(chance==0){
@@ -284,6 +284,7 @@ const initMessageHandler = (server : dgram.Socket) => {
                   console.log("// DEBUG: trying to connect with :" + rinfo.address + ':' + config.get('Server.P2P_PORT'));
                   connectToPeers('ws://' + rinfo.address + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
                   console.log("After connectToPeers");
+                  senderlock();
                 }
               }
             break;
