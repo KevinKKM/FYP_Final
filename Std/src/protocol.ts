@@ -220,6 +220,14 @@ const EthAESAuthServer = (discoveryPort: number) => {
 }
 */
 
+const senderlock = () => {
+  flag = true;
+  lock = false;
+  var command = directory+'/ShellCall/IPenable.sh';
+  console.log("NodeJS debug: "+command);
+  shell.exec(command);
+}
+
 const initDiscoveryServer =(discoveryPort: number) => {
   const server = dgram.createSocket("udp4");
   server.bind(discoveryPort);
@@ -274,8 +282,6 @@ const initMessageHandler = (server : dgram.Socket) => {
                 const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
                 if(!socketList.includes(rinfo.address)){
                   console.log("// DEBUG: trying to connect with :" + rinfo.address + ':' + config.get('Server.P2P_PORT'));
-                  flag = true;
-                  lock = false;
                   connectToPeers('ws://' + rinfo.address + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
                   console.log("After connectToPeers");
                 }
@@ -289,4 +295,4 @@ const initMessageHandler = (server : dgram.Socket) => {
   });
 };
 
-export {initDiscoveryServer,sendHello,EthProcessServer,setFlag};
+export {initDiscoveryServer,sendHello,EthProcessServer,setFlag,senderlock};

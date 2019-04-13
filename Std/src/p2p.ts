@@ -12,7 +12,7 @@ import {
 } from './blockchain';
 import {Transaction} from './transaction';
 import {getTransactionPool} from './transactionPool';
-import {setFlag} from './protocol';
+import {setFlag,senderlock} from './protocol';
 
 const sockets: WebSocket[] = [];
 var alive_connection = 0;
@@ -255,6 +255,7 @@ const handleBlockchainResponse = (receivedBlocks: Block[]) => {
           } else if (receivedBlocks.length === 1) {
               console.log('[*] We have to query the chain from our peer');
               broadcast(queryAllMsg());
+              senderlock();
           } else {
               console.log('[*] Received blockchain is longer than current blockchain');
               replaceChain(receivedBlocks);

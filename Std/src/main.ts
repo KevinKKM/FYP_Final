@@ -38,5 +38,6 @@ process.on('SIGINT', function () {
   shell.exec(directory+'/ShellCall/enableARP.sh');
   shell.exec(directory+'/ShellCall/IPenable.sh');
   shell.exec(directory+'/ShellCall/Reset.sh');
+  shell.exec(directory+'/ShellCall/firewalloff.sh');
   process.exit();
 });
