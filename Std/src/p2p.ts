@@ -245,6 +245,7 @@ const handleBlockchainResponse = (receivedBlocks: Block[]) => {
       console.log('[*] Empty Blockchain detected');
       replaceChain(receivedBlocks);
     }else{
+      senderlock();
       if (latestBlockReceived.index > latestBlockHeld.index) {
           console.log('[*] Blockchain possibly behind. We got: '
               + latestBlockHeld.index + ' Peer got: ' + latestBlockReceived.index);
@@ -255,7 +256,7 @@ const handleBlockchainResponse = (receivedBlocks: Block[]) => {
           } else if (receivedBlocks.length === 1) {
               console.log('[*] We have to query the chain from our peer');
               broadcast(queryAllMsg());
-              senderlock();
+
           } else {
               console.log('[*] Received blockchain is longer than current blockchain');
               replaceChain(receivedBlocks);

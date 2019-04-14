@@ -137,8 +137,8 @@ const sendHello = () =>{
               //lock=true;
               //authETH = true;
               //sendHello();
-            }
-                });
+              }
+            });
           pyshell.end(function(err,code,signal){
             if (err) throw err;
               });
