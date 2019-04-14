@@ -6,7 +6,11 @@ import {
 } from './blockchain';
 import {Transaction} from './transaction';
 import {getTransactionPool} from './transactionPool';
-
+var portscanner = require('portscanner');
+var shell = require('shelljs');
+var directory = shell.pwd().toString();
+var startscan = false;
+var util = require('util');
 const sockets: WebSocket[] = [];
 
 enum MessageType {
@@ -177,6 +181,20 @@ const broadcastLatestChain = (): void => {
     broadcast(responseChainMsg());
 };
 
+const scanPort = (portscanip: string, index: number) => {
+  var result = "";
+  portscanner.checkPortStatus(6001,portscanip, function(error, status) {
+    var cur_ip = portscanip;
+    // Status is 'open' if currently in use or 'closed' if available
+    console.log(cur_ip+" status : "+status);
+    result = status;
+  });
+  if(index>=254){
+    startscan = false;
+  }
+  return result;
+}
+
 const initWebInterface = (p2pPort: number) => {
   var http=require('http');
   var fs=require('fs');
@@ -216,12 +234,27 @@ const initWebInterface = (p2pPort: number) => {
         IP_address: IPAddr,
         Type: DeviceType
       });
+      //var AddPeerCommand = util.format("curl -H Content-type:application/json --data '{\"peer\" : \"ws://%s:6001\"}' http://localhost:3003/addPeer",IPAddr)
+      //var AuthCommand = util.format("curl http://127.0.0.1:3003/authall");
+      //console.log(AddPeerCommand);
+      //console.log(AuthCommand);
+      let {PythonShell} = require('python-shell');
+      let pyshell = new PythonShell(directory+'/auth_command.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[IPAddr]});
+      pyshell.on('message', function (message){
+        console.log("Python Debug: "+message);
+        });
       res.send("Auth those network");
-      console.log(Authed_Device);
     });
     app.get('/scan', function(req, res){
+      let {PythonShell} = require('python-shell');
+      let pyshell = new PythonShell(directory+'/portscan.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'] });
+      pyshell.on('message', function (message){
+        console.log("Python Debug: "+message);
 
-      res.send(tempData);
+        res.send(JSON.parse(message));
+        });
+
+
     });
     var server = app.listen(p2pPort, function(){
     var host = server.address().address;
