@@ -285,7 +285,6 @@ const initMessageHandler = (server : dgram.Socket) => {
                   console.log("// DEBUG: trying to connect with :" + rinfo.address + ':' + config.get('Server.P2P_PORT'));
                   connectToPeers('ws://' + rinfo.address + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
                   console.log("After connectToPeers");
-                  senderlock();
                 }
               }
             break;
