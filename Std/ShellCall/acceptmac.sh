@@ -1,5 +1,6 @@
 sudo arptables -A INPUT --src-mac $1 -j ACCEPT
 sudo iptables -A INPUT -m mac --mac-source $1 -j ACCEPT
+#sudo iptables -A OUTPUT -m mac --mac-source $1 -j ACCEPT
 file="/etc/dhcp/dhcpd.conf"
 if [ -f "$file" ]
 then
@@ -8,4 +9,3 @@ then
 else
 	echo "$file Not Found!!"
 fi
-
