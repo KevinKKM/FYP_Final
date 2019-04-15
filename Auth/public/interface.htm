@@ -141,11 +141,26 @@ tr:nth-child(even) {
 <div id="blockchain" class="tabcontent">
   <h3>BlockChain</h3>
   <p>Temp data for current blockchain</p>
+  <pre id=json_display></pre>
 </div>
 
 <script>
 
 $(function(){
+
+  $("#blockchain_btn").on('click', function(){
+    $.ajax({
+      url: '/getblock',
+      ContentType: 'application/json',
+      success: function(response){
+        console.log(response);
+        $('#json_display').html(prettyPrintJson.toHtml(response));
+      }
+    });
+    //const data = { active: true, codes: [48348, 28923, 39080], city: 'London' };
+
+  });
+
   $("#Auth").on('click', function(){
     var auth_device = AuthProcess();
     var message = JSON.stringify(auth_device);
@@ -197,6 +212,37 @@ $(function(){
   });
 });
 
+const prettyPrintJson = {
+   toHtml: (thing) => {
+      const htmlEntities = (string) => {
+         // Makes text displayable in browsers
+         return string
+            .replace(/&/g,   '&amp;')
+            .replace(/\\"/g, '&bsol;&quot;')
+            .replace(/</g,   '&lt;')
+            .replace(/>/g,   '&gt;');
+         };
+      const replacer = (match, p1, p2, p3, p4) => {
+         // Converts the four parenthesized capture groups into HTML
+         const part =       { indent: p1, key: p2, value: p3, end: p4 };
+         const key =        '<span class=json-key>';
+         const val =        '<span class=json-value>';
+         const bool =       '<span class=json-boolean>';
+         const str =        '<span class=json-string>';
+         const isBool =     ['true', 'false'].includes(part.value);
+         const valSpan =    /^"/.test(part.value) ? str : isBool ? bool : val;
+         const findName =   /"([\w]+)": |(.*): /;
+         const indentHtml = part.indent || '';
+         const keyHtml =    part.key ? key + part.key.replace(findName, '$1$2') + '</span>: ' : '';
+         const valueHtml =  part.value ? valSpan + part.value + '</span>' : '';
+         const endHtml =    part.end || '';
+         return indentHtml + keyHtml + valueHtml + endHtml;
+         };
+      const jsonLine = /^( *)("[^"]+": )?("[^"]*"|[\w.+-]*)?([{}[\],]*)?$/mg;
+      return htmlEntities(JSON.stringify(thing, null, 3))
+         .replace(jsonLine, replacer);
+      }
+   };
 
 function openCity(evt, cityName) {
   var i, tabcontent, tablinks;

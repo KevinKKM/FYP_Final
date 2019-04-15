@@ -256,6 +256,11 @@ const initWebInterface = (p2pPort: number) => {
 
 
     });
+
+    app.get('/getblock', function(req,res){
+      res.send(getBlockchain());
+    });
+
     var server = app.listen(p2pPort, function(){
     var host = server.address().address;
     var port = server.address().port;
