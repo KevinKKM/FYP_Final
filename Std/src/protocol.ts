@@ -236,14 +236,14 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               console.log("Decrypted IP address: "+sender_IP);
               if (validateIdentifier(identifier)){
                 console.log("Open the Gate!!!");
-                /*
+
                 const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
-                if(!socketList.includes(rinfo.address)){
-                  console.log("// DEBUG: trying to connect with :" + rinfo.address + ':' + config.get('Server.P2P_PORT'));
-                  connectToPeers('ws://' + rinfo.address + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
+                if(!socketList.includes(sender_IP)){
+                  console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
+                  connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
                   console.log("After connectToPeers");
                 }
-                */
+
               }
               break;
         }
