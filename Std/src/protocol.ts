@@ -59,24 +59,16 @@ const sendHello = () =>{
       socket.setBroadcast(true);
     });
     if (checkReadyStatus()){
-      const chainHash = CryptoJS.SHA256(getChainKeyFromChain()).toString()+":"+getChainKeyFromChain();
+      const chainHash = CryptoJS.SHA256(getChainKeyFromChain()).toString();
       //console.log('// DEBUG: my hash: ' + chainHash);
-      const message = new Buffer(JSON.stringify(new Message(MessageType.ETH_HELLO,chainHash)));
+      //const message = new Buffer(JSON.stringify(new Message(MessageType.ETH_HELLO,chainHash)));
+      var send_message = util.format("|+|%s|+|%d|+|",chainHash,0);
       let {PythonShell} = require('python-shell');
-      let pyshell = new PythonShell(directory+'/SendETH.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'] });
+      let pyshell = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[send_message]});
       //pyshell.pythonPath = 'usr/bin';
-      pyshell.stdin.write(message);
       pyshell.on('message', function (message){
-        //console.log("Python Debug: "+message);
-        if(message.indexOf("<+>")!=-1){
-          //console.log("Auth!!!!");
-          var rece_mac = message.split("|")[1];
-          var command = directory+'/ShellCall/acceptmac.sh '+rece_mac;
-          console.log("NodeJS debug: "+command);
-          shell.exec(command);
-          lock=true;
-          //sendHello();
-        }
+        console.log("Python Debug: "+message);
+        //var command = directory+'/ShellCall/acceptmac.sh '+rece_mac;
             });
       pyshell.end(function(err,code,signal){
         if (err) throw err;
@@ -154,25 +146,15 @@ const EthProcessServer = (discoveryPort: number) => {
     setInterval(function(){
       if (checkReadyStatus()){
           //sendHello();
-      if(!flag){
-        if(lock){
-        console.log('[^] Ethernet connection success, wait for '+chance+" second");
-        msleep(100);
-        sendHello();
-        chance--;
-        if(chance==0){
-          chance = 10;
-          lock=false;
-        }
-      }else{
-        //console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
-        //sendEthernetHello();
+
+        console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
+        sendEthernetHello();
         //sendEthernetAESAuth();
-      }
-      }
+
+
       }
     },1000);
-  })
+  });
   EthernetMessageHandler(ethserver);
 }
 
@@ -238,11 +220,11 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
                 console.log("Open the Gate!!!");
 
                 const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
-                if(!socketList.includes(sender_IP)){
-                  console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
-                  connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
-                  console.log("After connectToPeers");
-                }
+                //if(!socketList.includes(sender_IP)){
+                console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
+                connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
+                console.log("After connectToPeers");
+                //}
 
               }
               break;
