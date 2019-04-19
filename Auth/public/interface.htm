@@ -199,13 +199,8 @@ $(function(){
         table = document.getElementById("unauth_table");
         ClearTable();
         $.each(response, function(key,val){
-          var row  = table.insertRow(key+1);
-          var num = row.insertCell(0);
-          var ip = row.insertCell(1);
-          var device = row.insertCell(2);
-          num.innerHTML = key;
-          ip.innerHTML = val.IPaddress;
-          device.innerHTML = val.type;
+          var markup = "<tr onclick=\"myFunction(this)\"><td>"+key+"</td><td>"+val.IPaddress+"</td><td>"+val.type+"</td></tr>";
+          $("#unauth_table").append(markup);
         });
       }
     });
@@ -302,7 +297,31 @@ function AuthProcess() {
 
 
 function myFunction(x) {
-  alert("Row index is: " + x.rowIndex);
+  table = document.getElementById("unauth_table");
+  var reference_Row = table.rows[0];
+  //alert("Row index is: " + x.rowIndex);
+  var passdata = "{";
+  var row = table.rows[x.rowIndex];
+  for(j = 0;j < row.cells.length;j++){
+      passdata += " "+"\""+reference_Row.cells[j].innerHTML+"\""+" : "+"\""+row.cells[j].innerHTML+"\""+" ";
+      if(j!=row.cells.length-1)passdata+=",";
+      //alert(row.cells[j].innerHTML);
+    }
+    passdata+="}";
+    console.log(passdata);
+    $.ajax({
+      type: "POST",
+      url: '/auth',
+      //data: JSON.parse('{ "IP_address" : "192.168.2.128" }'),
+      data: JSON.parse(passdata),
+      ContentType: 'application/json',
+      dataType:"json",
+      success: function(response){
+        console.log(response);
+
+      }
+    });
+    table.deleteRow(x.rowIndex);
 }
 </script>
 

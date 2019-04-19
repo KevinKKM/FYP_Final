@@ -219,7 +219,7 @@ const initWebInterface = (p2pPort: number) => {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.get('/', function(req, res){
-      res.sendFile("/home/kevin/FYP_final/Auth/public/interface.htm");
+      res.sendFile(directory+"/public/interface.htm");
     });
     app.get('/getAuthDevice', function(req,res){
       res.send(Authed_Device);

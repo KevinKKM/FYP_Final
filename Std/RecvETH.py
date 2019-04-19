@@ -15,14 +15,17 @@ global keyc,H1
 import threading
 _IV = 16* '\x00'
 ETH_P_ALL = 3
-s = socket(AF_PACKET, SOCK_RAW, htons(0xaaaa))
+UDP_IP = "127.0.0.1"
+UDP_PORT = 9999
+count = 0
+s = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))
 s.setsockopt(SOL_SOCKET,SO_REUSEADDR,1)
 keyc = ""
 magic_str = ":!:"
 hellotype = chr(int("aa",16))+chr(int("aa",16))
 authtype = chr(int("aa",16))+chr(int("ab",16))
 boardcast = chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))
-
+sock = socket(AF_INET,SOCK_DGRAM)
 #s.bind((interface, 0))
 
 def read_in():
@@ -48,24 +51,6 @@ def aes_decrypt(data, key):
 #       print("This is data "+data)
         return cryptor.decrypt(data)
 
-def send_ether(src, dst, type, payload, interface="ens33"):
-# 48-bit Ethernet addresses
-    assert(len(src) == len(dst) == 6)
-
-# 16-bit Ethernet type
-    assert(len(type) == 2) # 16-bit Ethernet type
-	#s = socket(AF_PACKET, SOCK_RAW)
-    s.bind((interface, 0))
-    sock = RawSocket("ens33", 0xAAAA)
-    #sock.send("some data")
-    #sock.send(payload, dest="\xFF\xFF\xFF\xFF\xFF\xFF")
-    s.send((dst + src + type + payload))
-    print("Send!!!")
-
-def main():
-    print("yo")
-    #get our data as an array from read_in()
-
 def convertstrmac(raw_mac):
         mac = ""
         for i in range(0,len(raw_mac)/2):
@@ -74,63 +59,45 @@ def convertstrmac(raw_mac):
         mac = mac[:-1]
         return mac
 
-def Receive(src,dst,type,payload):
+def Receive(src,dst,type,my_ip):
 	t = threading.currentThread()
 	while getattr(t, "do_run", True):
 		#print("Listening...")
 		try:
-			s.settimeout(1.0)
+			#print("hi")
 			message = s.recvfrom(4096)
 			rectype = message[0].encode('hex')[24:28]
 			RecMac  = message[0].encode('hex')[12:24]
+			#print(str(message[0].encode('hex')))
+			#sock.sendto(str(message[0].encode('hex')), (UDP_IP, UDP_PORT))
 			if(rectype=='aaaa'):
 				data = message[0].encode('hex')[28:]
+				if(RecMac==src.encode('hex')):
+					print("That's mine")
+                                sock.sendto(data.decode('hex')+"|+|%s|+|%s|+|"%(convertstrmac(RecMac),my_ip), (UDP_IP, UDP_PORT))
 				print("got something!! "+data.decode('hex'))
 				if(data.decode('hex')==keyc):
 					print("<+>|"+convertstrmac(RecMac))
 					strmac = convertstrmac(RecMac)
 					exit()
 		except timeout:
-			#print("Time out!!")
-			t.do_run = False
+			print("Time out!!")
+			#t.do_run = False
 
 if __name__ == '__main__':
+    print("hi")
     NIC = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[0] #find the first NIC
-    lines = read_in()#call by protocol
-    np_lines = np.array(lines)
+    #lines = read_in()#call by protocol
+    #np_lines = np.array(lines)
     netcard = netifaces.ifaddresses(NIC)[netifaces.AF_LINK]
     str_mac = netcard[0]['addr']
     net_mac = str_mac.split(":")
     src = chr(int(net_mac[0],16))+chr(int(net_mac[1],16))+chr(int(net_mac[2],16))+chr(int(net_mac[3],16))+chr(int(net_mac[4],16))+chr(int(net_mac[5],16))
     dst = chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))
     #print(np_lines)
-    sendmsg = lines[u'data']
-    packtype = lines[u'type']
-    payload = ""
     MyIP = netifaces.ifaddresses(NIC)[netifaces.AF_INET][0]['addr']
-    usetype = hellotype
-    if(packtype==2):
-        keyhash = sendmsg.split(":")[0]
-        realkey = sendmsg.split(":")[1]
-        H1 = hashlib.sha256()
-        H1.update(keyhash.encode('ascii'))
-        H1 = H1.hexdigest()
-        lines = read_in()
-        print(H1)
-        payload = H1
-        keyc = H1
-
-    if(packtype==3):
-        encryptmsg = sendmsg.split(":")[0]
-        realkey = sendmsg.split(":")[1]
-        encryptmsg = encryptmsg+magic_str+str_mac+magic_str+MyIP+magic_str
-        payload = aes_encrypt(encryptmsg,realkey)
-        #print("Encrypted: %s"%payload.decode('hex'))
-        decryptmsg = aes_decrypt(payload,realkey).split(magic_str)[0]
-        decryptmac = aes_decrypt(payload,realkey).split(magic_str)[1]
-        #print(aes_decrypt(payload,realkey).split(magic_str))
-        usetype = authtype
+    Receive(src,dst,type,MyIP)
 
     #send_ether(src,dst,usetype,payload)
-    RecThread = threading.Thread(target=Receive, args=(src,dst,type,payload,))
-    RecThread.start()
+    #RecThread = threading.Thread(target=Receive, args=(src,dst,type,))
+    #RecThread.start()

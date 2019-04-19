@@ -4,7 +4,7 @@ import * as ip from 'ip';
 import {getChainKeyFromChain,getLatestBlock,getPublicFromWallet,getChainLength,
   validateIdentifier,checkReadyStatus} from './blockchain';
 import {getSockets,connectToPeers,JSONToObject,getAliveConn} from './p2p';
-
+var util = require('util');
 var flag = false;
 var lock = false;
 var chance = 10;
@@ -165,32 +165,94 @@ const EthProcessServer = (discoveryPort: number) => {
           lock=false;
         }
       }else{
-        console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
-        sendEthernetHello();
+        //console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
+        //sendEthernetHello();
         //sendEthernetAESAuth();
       }
-      }else{
-        /*
-        if(lock){
-        console.log('[^] Ethernet connection success, wait for '+chance+" second");
-        msleep(1000);
-        sendHello();
-        chance--;
-        if(chance==0){
-          chance = 10;
-          lock=false;
-        }
-      }else{
-        */
-        //ReceiveEthernet();
-        //console.log("I am the part of the Network!!!");
-      //}
       }
-
       }
     },1000);
   })
+  EthernetMessageHandler(ethserver);
 }
+
+function hex_to_ascii(str1)
+ {
+	var hex  = str1.toString();
+	var str = '';
+	for (var n = 0; n < hex.length; n += 2) {
+		str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+	}
+	return str;
+ }
+
+const EthernetMessageHandler = (server : dgram.Socket) => {
+  server.on("message", function (msg, rinfo) {
+    if (rinfo.address != ip.address()){
+      console.log("Ethernet got: " + msg + " from " + rinfo.address + ":" + rinfo.port);
+        try {
+              let {PythonShell} = require('python-shell');
+              var receive_msg = msg.toString();
+              //const message: Message = JSONToObject<Message>(hex_to_ascii(msg));
+
+              //const message: Message = JSONToObject<Message>(hex_to_ascii(hex_to_ascii(msg).toString()));
+              if(receive_msg.indexOf("|+|")==-1)throw new Error('[!] Not the valid Message');
+              var type = parseInt(receive_msg.split("|+|")[2],10);
+              var message = receive_msg.split("|+|")[1];
+              var src_mac = receive_msg.split("|+|")[4];
+              var ip_addr = receive_msg.split("|+|")[5];
+              console.log("Ethernet got: " + message + " from " + src_mac);
+              if (message === null) {
+                  console.log('[!] Could not parse received JSON message: ' + msg.toString());
+                  return;
+              }
+              switch (type){
+              case MessageType.HELLO:
+              console.log("Receive The Hello Message ETH!");
+              const chainHash = CryptoJS.SHA256(getChainKeyFromChain()).toString();
+              if(message==chainHash){
+                console.log("Right person!!");
+                var cipherIdentifier = CryptoJS.AES.encrypt(getPublicFromWallet()+"<+>"+ip_addr, getChainKeyFromChain()).toString();
+                console.log(cipherIdentifier);
+                var send_message = util.format("|+|%s|+|%d|+|",cipherIdentifier,1);
+                console.log("Wanna send :"+send_message);
+                //console.log("IP address :"+ip_addr);
+
+                let pyshell = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[send_message]});
+                pyshell.on('message', function (message){
+                  console.log("Python Debug: "+message);
+                  });
+              }else{
+                console.log("Correct Hash = "+chainHash);
+              }
+                break;
+              case MessageType.AUTH_RESPONSE:
+              console.log("Receive The Auth Message ETH!");
+              console.log(message);
+              var bytes  = CryptoJS.AES.decrypt(message, getChainKeyFromChain());
+              var identifier = bytes.toString(CryptoJS.enc.Utf8).split("<+>")[0];
+              var sender_IP = bytes.toString(CryptoJS.enc.Utf8).split("<+>")[1];
+              console.log("Decrypted result: "+identifier);
+              if (validateIdentifier(identifier)){
+                console.log("Open the Gate!!!");
+                /*
+                const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
+                if(!socketList.includes(rinfo.address)){
+                  console.log("// DEBUG: trying to connect with :" + rinfo.address + ':' + config.get('Server.P2P_PORT'));
+                  connectToPeers('ws://' + rinfo.address + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
+                  console.log("After connectToPeers");
+                }
+                */
+              }
+              break;
+        }
+
+          } catch (e) {
+            console.log('[!]',e);
+          }
+  }
+  });
+};
 
 /*
 const EthAESAuthServer = (discoveryPort: number) => {
