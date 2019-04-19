@@ -70,7 +70,7 @@ def Receive(src,dst,type,my_ip):
 			RecMac  = message[0].encode('hex')[12:24]
 			#print(str(message[0].encode('hex')))
 			#sock.sendto(str(message[0].encode('hex')), (UDP_IP, UDP_PORT))
-			if(rectype=='aaaa'):
+			if(rectype=='aaaa' and RecMac!=src.encode('hex')):
 				data = message[0].encode('hex')[28:]
 				if(RecMac==src.encode('hex')):
 					print("That's mine")

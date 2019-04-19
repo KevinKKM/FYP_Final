@@ -218,7 +218,7 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
                 console.log("Wanna send :"+send_message);
                 //console.log("IP address :"+ip_addr);
 
-                let pyshell = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[send_message]});
+                let pyshell = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[send_message,src_mac]});
                 pyshell.on('message', function (message){
                   console.log("Python Debug: "+message);
                   });
@@ -233,6 +233,7 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               var identifier = bytes.toString(CryptoJS.enc.Utf8).split("<+>")[0];
               var sender_IP = bytes.toString(CryptoJS.enc.Utf8).split("<+>")[1];
               console.log("Decrypted result: "+identifier);
+              console.log("Decrypted IP address: "+sender_IP);
               if (validateIdentifier(identifier)){
                 console.log("Open the Gate!!!");
                 /*
