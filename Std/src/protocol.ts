@@ -75,7 +75,7 @@ const sendHello = () =>{
           });
         }
       }
-
+      /*
       const ReceiveEthernet = () =>{
         const socket = dgram.createSocket("udp4");
         socket.bind(function () {
@@ -136,6 +136,8 @@ const sendHello = () =>{
               });
             }
           }
+          */
+
 
 const EthProcessServer = (discoveryPort: number) => {
   const ethserver = dgram.createSocket("udp4");
@@ -274,6 +276,7 @@ const senderlock = () => {
   //shell.exec(directory+'/ShellCall/firewallon.sh');
 }
 
+/*
 const initDiscoveryServer =(discoveryPort: number) => {
   const server = dgram.createSocket("udp4");
   server.bind(discoveryPort);
@@ -340,5 +343,5 @@ const initMessageHandler = (server : dgram.Socket) => {
   }
   });
 };
-
-export {initDiscoveryServer,sendHello,EthProcessServer,setFlag,senderlock};
+*/
+export {sendHello,EthProcessServer,setFlag,senderlock};

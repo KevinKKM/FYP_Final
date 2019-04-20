@@ -12,7 +12,7 @@ import {connectToPeers, getSockets, initP2PServer, removeConnection} from './p2p
 import {UnspentTxOut} from './transaction';
 import {getTransactionPool} from './transactionPool';
 import {getPublicFromWallet, initWallet} from './wallet';
-import {initDiscoveryServer,sendHello,EthProcessServer} from './protocol';
+import {sendHello,EthProcessServer} from './protocol';
 import {initInServer,initOutServer} from './communication';
 
 const config = require('config');
@@ -26,7 +26,7 @@ const outPort: number = config.get('Server.OUT_PORT');
 var shell = require('shelljs');
 var directory = shell.pwd().toString();
 initP2PServer(p2pPort); //call by p2p.ts
-initDiscoveryServer(discoveryPort); // call by protocol
+//initDiscoveryServer(discoveryPort); // call by protocol
 initInServer(inPort); //firewall, call by communication
 initOutServer(outPort); //firewall, call by communication
 EthProcessServer(9999);
