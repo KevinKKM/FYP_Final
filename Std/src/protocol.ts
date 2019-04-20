@@ -147,18 +147,10 @@ const EthProcessServer = (discoveryPort: number) => {
       if (checkReadyStatus()){
           //sendHello();
 
-<<<<<<< HEAD
         if(!flag){
           console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
           sendEthernetHello();
         }
-
-=======
-        console.log(`[^] Sending ETHERNET HELLO to discover other peers`);
-        sendEthernetHello();
->>>>>>> 08f9d4e11dd21ea67b3975e52d6d970ac2050f00
-        //sendEthernetAESAuth();
-
 
       }
     },1000);
