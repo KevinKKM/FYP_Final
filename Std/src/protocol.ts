@@ -63,6 +63,7 @@ const sendHello = () =>{
       //console.log('// DEBUG: my hash: ' + chainHash);
       //const message = new Buffer(JSON.stringify(new Message(MessageType.ETH_HELLO,chainHash)));
       var send_message = util.format("|+|%s|+|%d|+|",chainHash,0);
+      console.log(send_message);
       let {PythonShell} = require('python-shell');
       let pyshell = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[send_message]});
       //pyshell.pythonPath = 'usr/bin';
@@ -220,7 +221,8 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               console.log("Decrypted IP address: "+sender_IP);
               if (validateIdentifier(identifier)){
                 console.log("Open the Gate!!!");
-
+                var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
+                console.log(command);
                 const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
                 //if(!socketList.includes(sender_IP)){
                 console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
@@ -272,7 +274,7 @@ const senderlock = () => {
   lock = false;
   var command = directory+'/ShellCall/IPenable.sh';
   console.log("NodeJS debug: "+command);
-  shell.exec(command);
+  //shell.exec(command);
   //shell.exec(directory+'/ShellCall/firewallon.sh');
 }
 

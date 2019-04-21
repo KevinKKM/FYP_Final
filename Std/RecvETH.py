@@ -59,7 +59,7 @@ def convertstrmac(raw_mac):
         mac = mac[:-1]
         return mac
 
-def Receive(src,dst,type,my_ip):
+def Receive(src,dst,type,my_ip,nic_mac):
 	t = threading.currentThread()
 	while getattr(t, "do_run", True):
 		#print("Listening...")
@@ -70,9 +70,14 @@ def Receive(src,dst,type,my_ip):
 			RecMac  = message[0].encode('hex')[12:24]
 			#print(str(message[0].encode('hex')))
 			#sock.sendto(str(message[0].encode('hex')), (UDP_IP, UDP_PORT))
-			if(rectype=='aaaa' and RecMac!=src.encode('hex')):
+			CheckMine = False
+			for mac in nic_mac:
+				if(RecMac==mac):
+					CheckMine = True
+					break
+			if(rectype=='aaaa' and CheckMine==False):
 				data = message[0].encode('hex')[28:]
-				if(RecMac==src.encode('hex')):
+				if(CheckMine):
 					print("That's mine")
                                 sock.sendto(data.decode('hex')+"|+|%s|+|%s|+|"%(convertstrmac(RecMac),my_ip), (UDP_IP, UDP_PORT))
 				print("got something!! "+data.decode('hex'))
@@ -86,9 +91,18 @@ def Receive(src,dst,type,my_ip):
 
 if __name__ == '__main__':
     print("hi")
-    NIC = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[0] #find the first NIC
+    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[:-1] #find all the NICs
+    NIC = NIC_arr[0]
+    mac_arr = []
     #lines = read_in()#call by protocol
     #np_lines = np.array(lines)
+    for cur_nic in NIC_arr:
+        curnetcard = netifaces.ifaddresses(cur_nic)[netifaces.AF_LINK]
+        #print(curnetcard)
+        mactemp = curnetcard[0]['addr'].split(":")
+        if(cur_nic!="lo"):
+            mac_arr.append("".join(mactemp).encode())
+    print(mac_arr)
     netcard = netifaces.ifaddresses(NIC)[netifaces.AF_LINK]
     str_mac = netcard[0]['addr']
     net_mac = str_mac.split(":")
@@ -96,7 +110,7 @@ if __name__ == '__main__':
     dst = chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))
     #print(np_lines)
     MyIP = netifaces.ifaddresses(NIC)[netifaces.AF_INET][0]['addr']
-    Receive(src,dst,type,MyIP)
+    Receive(src,dst,type,MyIP,mac_arr)
 
     #send_ether(src,dst,usetype,payload)
     #RecThread = threading.Thread(target=Receive, args=(src,dst,type,))
