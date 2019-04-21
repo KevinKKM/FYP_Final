@@ -219,11 +219,11 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               var sender_IP = bytes.toString(CryptoJS.enc.Utf8).split("<+>")[1];
               console.log("Decrypted result: "+identifier);
               console.log("Decrypted IP address: "+sender_IP);
+              var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
+              console.log(command);
+              shell.exec(command);
               if (validateIdentifier(identifier)){
                 console.log("Open the Gate!!!");
-                var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
-                console.log(command);
-                shell.exec(command);
                 const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
                 //if(!socketList.includes(sender_IP)){
                 console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
