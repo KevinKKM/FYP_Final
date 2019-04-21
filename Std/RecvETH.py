@@ -91,8 +91,9 @@ def Receive(src,dst,type,my_ip,nic_mac):
 
 if __name__ == '__main__':
     print("hi")
-    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[1:-1] #find all the NICs
-    NIC = NIC_arr[0]
+    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[:-1] #find all the NICs
+    authNIC = NIC_arr[0]
+    NIC_arr = NIC_arr[1:]
     mac_arr = []
     #lines = read_in()#call by protocol
     #np_lines = np.array(lines)
@@ -103,13 +104,13 @@ if __name__ == '__main__':
         if(cur_nic!="lo"):
             mac_arr.append("".join(mactemp).encode())
     print(mac_arr)
-    netcard = netifaces.ifaddresses(NIC)[netifaces.AF_LINK]
+    netcard = netifaces.ifaddresses(authNIC)[netifaces.AF_LINK]
     str_mac = netcard[0]['addr']
     net_mac = str_mac.split(":")
     src = chr(int(net_mac[0],16))+chr(int(net_mac[1],16))+chr(int(net_mac[2],16))+chr(int(net_mac[3],16))+chr(int(net_mac[4],16))+chr(int(net_mac[5],16))
     dst = chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))+chr(int("ff",16))
     #print(np_lines)
-    MyIP = netifaces.ifaddresses(NIC)[netifaces.AF_INET][0]['addr']
+    MyIP = netifaces.ifaddresses(authNIC)[netifaces.AF_INET][0]['addr']
     Receive(src,dst,type,MyIP,mac_arr)
 
     #send_ether(src,dst,usetype,payload)
