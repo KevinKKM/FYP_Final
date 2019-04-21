@@ -44,7 +44,7 @@ if __name__ == '__main__':
     #keyc = 'RkZGRi5GRkZGLkZGRkYuRkZGRg=='
 
     #H1 = H1.hexdigest()
-    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[:-1] #find all the NIC
+    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[1:-1] #find all the NIC
     print(NIC_arr)
 
     #NIC = NIC_arr[0]
@@ -68,7 +68,6 @@ if __name__ == '__main__':
                 payload = input_arg[1]
             MyIP = netifaces.ifaddresses(NIC)[netifaces.AF_INET][0]['addr']
             usetype = hellotype
-            print(payload)
             if(NIC!="lo"):
                 send_ether(src,dst,usetype,json.dumps(payload),NIC)
         except:

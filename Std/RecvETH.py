@@ -91,7 +91,7 @@ def Receive(src,dst,type,my_ip,nic_mac):
 
 if __name__ == '__main__':
     print("hi")
-    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[:-1] #find all the NICs
+    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[1:-1] #find all the NICs
     NIC = NIC_arr[0]
     mac_arr = []
     #lines = read_in()#call by protocol
