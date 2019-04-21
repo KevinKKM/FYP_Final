@@ -292,9 +292,9 @@ const checkReadyStatus = (): boolean => {
       removeConnection();
       readyStatus = true;
       console.log("protection mode!!");
-      //shell.exec(directory+'/ShellCall/protectARP.sh');
-      //shell.exec(directory+'/ShellCall/clear_arp.sh');
-      //shell.exec(directory+'/ShellCall/IPprotect.sh');
+      shell.exec(directory+'/ShellCall/protectARP.sh');
+      shell.exec(directory+'/ShellCall/clear_arp.sh');
+      shell.exec(directory+'/ShellCall/IPprotect.sh');
       //shell.exec(directory+'/ShellCall/firewallon.sh');
       EnableAuth();
       return readyStatus;

@@ -76,10 +76,11 @@ def Receive(src,dst,type,my_ip,nic_mac):
 					CheckMine = True
 					break
 			if(rectype=='aaaa' and CheckMine==False):
+				receIP = netifaces.ifaddresses(message[1][0])[netifaces.AF_INET][0]['addr']
 				data = message[0].encode('hex')[28:]
 				if(CheckMine):
 					print("That's mine")
-                                sock.sendto(data.decode('hex')+"|+|%s|+|%s|+|"%(convertstrmac(RecMac),my_ip), (UDP_IP, UDP_PORT))
+                                sock.sendto(data.decode('hex')+"|+|%s|+|%s|+|"%(convertstrmac(RecMac),receIP), (UDP_IP, UDP_PORT))
 				print("got something!! "+data.decode('hex'))
 				if(data.decode('hex')==keyc):
 					print("<+>|"+convertstrmac(RecMac))

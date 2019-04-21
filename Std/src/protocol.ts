@@ -223,6 +223,7 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
                 console.log("Open the Gate!!!");
                 var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
                 console.log(command);
+                shell.exec(command);
                 const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
                 //if(!socketList.includes(sender_IP)){
                 console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
