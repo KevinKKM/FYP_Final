@@ -12,7 +12,7 @@ import {connectToPeers, getSockets, initP2PServer, removeConnection} from './p2p
 import {UnspentTxOut} from './transaction';
 import {getTransactionPool} from './transactionPool';
 import {getPublicFromWallet, initWallet} from './wallet';
-import {sendHello,EthProcessServer} from './protocol';
+import {EthBoardcastServer,EthProcessServer} from './protocol';
 import {initInServer,initOutServer} from './communication';
 
 const config = require('config');
@@ -30,7 +30,7 @@ initP2PServer(p2pPort); //call by p2p.ts
 initInServer(inPort); //firewall, call by communication
 initOutServer(outPort); //firewall, call by communication
 EthProcessServer(9999);
-//EthAESAuthServer(9998);
+EthBoardcastServer(9998);
 process.stdin.resume();
 
 process.on('SIGINT', function () {

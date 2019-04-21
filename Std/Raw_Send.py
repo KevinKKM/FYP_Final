@@ -1,18 +1,10 @@
 from socket import *
 import netifaces
 from rawsocketpy import RawSocket
-import json
-import numpy as np
-from multiprocessing import Process
-from Crypto.Cipher import AES
-import base64
 import time
-import hashlib
+import json
 import os,sys
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.fernet import Fernet
-global keyc,H1
-import threading
+
 _IV = 16* '\x00'
 ETH_P_ALL = 3
 s = socket(AF_PACKET, SOCK_RAW, htons(0xaaaa))

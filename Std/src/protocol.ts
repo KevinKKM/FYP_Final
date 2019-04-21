@@ -38,19 +38,17 @@ class Message {
     }
 }
 
-const sendHello = () =>{
+const sendHello = (message: string, send_ip: string) =>{
   const socket = dgram.createSocket("udp4");
   socket.bind(function () {
     socket.setBroadcast(true);
   });
-  if (checkReadyStatus()){
     const chainHash = CryptoJS.SHA256(getChainKeyFromChain()).toString();
     //console.log('// DEBUG: my hash: ' + chainHash);
-    const message = new Buffer(JSON.stringify(new Message(MessageType.HELLO,chainHash)));
-    socket.send(message, 0, message.length, 6002, '255.255.255.255', function(err, bytes) {
+    console.log(message);
+    socket.send(message, 0, message.length, 9998, send_ip, function(err, bytes) {
       socket.close();
     });
-    }
   }
 
   const sendEthernetHello = () =>{
@@ -68,7 +66,7 @@ const sendHello = () =>{
       let pyshell = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[send_message]});
       //pyshell.pythonPath = 'usr/bin';
       pyshell.on('message', function (message){
-        console.log("Python Debug: "+message);
+        //console.log("Python Debug: "+message);
         //var command = directory+'/ShellCall/acceptmac.sh '+rece_mac;
             });
       pyshell.end(function(err,code,signal){
@@ -205,7 +203,7 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
 
                 let pyshell = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[send_message,src_mac]});
                 pyshell.on('message', function (message){
-                  console.log("Python Debug: "+message);
+                  //console.log("Python Debug: "+message);
                   });
               }else{
                 console.log("Correct Hash = "+chainHash);
@@ -222,6 +220,13 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
               console.log(command);
               shell.exec(command);
+              let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
+              pyshell.on('message', function (message){
+                //console.log("Python Debug: "+message);
+                var interface_msg = message;
+                //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
+                sendHello(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString(),'192.168.2.139');
+                });
               if (validateIdentifier(identifier)){
                 console.log("Open the Gate!!!");
                 const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
@@ -242,33 +247,41 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
   });
 };
 
-/*
-const EthAESAuthServer = (discoveryPort: number) => {
+
+const EthBoardcastServer = (discoveryPort: number) => {
   const ethserver = dgram.createSocket("udp4");
   ethserver.bind(discoveryPort);
   ethserver.on("listening", function(){
     var address = ethserver.address();
-    setInterval(function(){
-      if (checkReadyStatus() && !flag){
-          //sendHello();
-          if(authETH){
-          console.log('[^] Ethernet connection Auth, wait for '+chance+" second");
-          //msleep(1000);
-          //sendEthernetAESAuth();
-          sendHello();
-          chance--;
-          if(chance==0){
-            chance = 10;
-            authETH=false;
-            lock = false;
-          }
-          //sendHello();
-        }
-        }
-    },100);
-  })
+  });
+  initBoardcastHandler(ethserver);
 }
-*/
+
+const initBoardcastHandler = (server : dgram.Socket) => {
+  server.on("message", function (msg, rinfo) {
+    if (rinfo.address != ip.address()){
+      console.log("server got: " + msg + " from " + rinfo.address + ":" + rinfo.port);
+
+      try {
+        var rece_msg = msg.toString();
+        //console.log(rece_msg);
+        var interface_msg = "";
+        let {PythonShell} = require('python-shell');
+        let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
+
+        pyshell.on('message', function (message){
+          //console.log("Python Debug: "+message);
+          interface_msg = message;
+          //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
+
+          });
+  } catch (e) {
+      console.log('[!]',e);
+  }
+  }
+  });
+};
+
 
 const senderlock = () => {
   flag = true;
@@ -278,6 +291,7 @@ const senderlock = () => {
   //shell.exec(command);
   //shell.exec(directory+'/ShellCall/firewallon.sh');
 }
+
 
 /*
 const initDiscoveryServer =(discoveryPort: number) => {
@@ -347,4 +361,4 @@ const initMessageHandler = (server : dgram.Socket) => {
   });
 };
 */
-export {sendHello,EthProcessServer,setFlag,senderlock};
+export {EthBoardcastServer,EthProcessServer,setFlag,senderlock};
