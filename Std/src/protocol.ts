@@ -225,7 +225,7 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
                 //console.log("Python Debug: "+message);
                 var interface_msg = message;
                 //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
-                sendHello(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString(),'192.168.2.139');
+                sendHello(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString(),sender_IP);
                 });
               if (validateIdentifier(identifier)){
                 console.log("Open the Gate!!!");
@@ -266,6 +266,10 @@ const initBoardcastHandler = (server : dgram.Socket) => {
         var rece_msg = msg.toString();
         //console.log(rece_msg);
         var interface_msg = "";
+        var bytes  = CryptoJS.AES.decrypt(rece_msg, getChainKeyFromChain());
+        var decryptMessage = bytes.toString(CryptoJS.enc.Utf8);
+        console.log(decryptMessage);
+        /*
         let {PythonShell} = require('python-shell');
         let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
 
@@ -275,6 +279,7 @@ const initBoardcastHandler = (server : dgram.Socket) => {
           //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
 
           });
+          */
   } catch (e) {
       console.log('[!]',e);
   }
