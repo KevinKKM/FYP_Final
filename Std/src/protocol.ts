@@ -269,6 +269,14 @@ const initBoardcastHandler = (server : dgram.Socket) => {
         var bytes  = CryptoJS.AES.decrypt(rece_msg, getChainKeyFromChain());
         var decryptMessage = bytes.toString(CryptoJS.enc.Utf8);
         console.log(decryptMessage);
+        if(decryptMessage.indexOf("<+>")!=-1 && decryptMessage.indexOf("|+|")!=-1){
+          var receIntArr = decryptMessage.split("<+>");
+          for(var i=0;i<receIntArr.length;i++){
+            console.log(receIntArr[i]);
+          }
+        }else{
+          console.log("[!] That's not the correct boardcasting message, or decryption failure!");
+        }
         /*
         let {PythonShell} = require('python-shell');
         let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
