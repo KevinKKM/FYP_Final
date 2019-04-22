@@ -268,11 +268,15 @@ const initBoardcastHandler = (server : dgram.Socket) => {
         var interface_msg = "";
         var bytes  = CryptoJS.AES.decrypt(rece_msg, getChainKeyFromChain());
         var decryptMessage = bytes.toString(CryptoJS.enc.Utf8);
-        console.log(decryptMessage);
         if(decryptMessage.indexOf("<+>")!=-1 && decryptMessage.indexOf("|+|")!=-1){
           var receIntArr = decryptMessage.split("<+>");
           for(var i=0;i<receIntArr.length;i++){
-            console.log(receIntArr[i]);
+            //console.log(receIntArr[i]);
+            var cur_ip = receIntArr[i].split("|+|")[0];
+            var cur_mac = receIntArr[i].split("|+|")[1];
+            var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
+            //console.log(command);
+            shell.exec(command);
           }
         }else{
           console.log("[!] That's not the correct boardcasting message, or decryption failure!");
