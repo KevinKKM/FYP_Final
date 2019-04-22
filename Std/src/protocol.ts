@@ -218,13 +218,27 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               var sender_IP = bytes.toString(CryptoJS.enc.Utf8).split("<+>")[1];
               console.log("Decrypted result: "+identifier);
               console.log("Decrypted IP address: "+sender_IP);
-              var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
+              //var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
+              var arrFound = AuthDevice.filter(function(item) {
+                  return item.IP_address == sender_IP;
+              });
+              console.log("The finding result: "+arrFound.length);
+              if(arrFound.length==0){
+                AuthDevice.push({
+                  IP_address: sender_IP,
+                  Mac_address: src_mac
+                });
+                var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
+                console.log(command);
+                shell.exec(command);
+              }/*
               AuthDevice.push({
                 IP_address: sender_IP,
                 Mac_address: src_mac
               });
               console.log(command);
               shell.exec(command);
+              */
               let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
               pyshell.on('message', function (message){
                 //console.log("Python Debug: "+message);
