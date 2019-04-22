@@ -274,9 +274,10 @@ const initBoardcastHandler = (server : dgram.Socket) => {
             //console.log(receIntArr[i]);
             var cur_ip = receIntArr[i].split("|+|")[0];
             var cur_mac = receIntArr[i].split("|+|")[1];
-            var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
+            console.log("Got the IP : "+cur_ip+" The reference mac address: "+cur_mac);
+            //var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
             //console.log(command);
-            shell.exec(command);
+            //shell.exec(command);
           }
         }else{
           console.log("[!] That's not the correct boardcasting message, or decryption failure!");
