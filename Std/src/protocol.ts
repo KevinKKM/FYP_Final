@@ -279,8 +279,8 @@ const initBoardcastHandler = (server : dgram.Socket) => {
             //console.log(receIntArr[i]);
 
             if(receIntArr[i].split("<+>").length==2){
-              var cur_ip = receIntArr[i].split("<+>")[0];
-              var cur_mac = receIntArr[i].split("<+>")[1];
+              var cur_ip = receIntArr[i].split("<+>")[1];
+              var cur_mac = receIntArr[i].split("<+>")[0];
               console.log("Got the IP : "+cur_ip+" The reference mac address: "+cur_mac);
               var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
               console.log(command);
