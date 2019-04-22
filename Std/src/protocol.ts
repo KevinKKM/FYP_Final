@@ -282,9 +282,7 @@ const initBoardcastHandler = (server : dgram.Socket) => {
               var cur_ip = receIntArr[i].split("<+>")[1];
               var cur_mac = receIntArr[i].split("<+>")[0];
               console.log("Got the IP : "+cur_ip+" The reference mac address: "+cur_mac);
-              var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
-              console.log(command);
-              //shell.exec(command);
+
               var arrFound = AuthDevice.filter(function(item) {
                   return item.IP_address == cur_ip;
               });
@@ -294,6 +292,9 @@ const initBoardcastHandler = (server : dgram.Socket) => {
                   IP_address: cur_ip,
                   Mac_address: cur_mac
                 });
+                var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
+                console.log(command);
+                shell.exec(command);
               }
               console.log(AuthDevice);
             }
