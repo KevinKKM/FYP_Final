@@ -9,7 +9,8 @@ if __name__ == '__main__':
     #keyc = 'RkZGRi5GRkZGLkZGRkYuRkZGRg=='
 
     #H1 = H1.hexdigest()
-    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[1:-1] #find all the NIC
+    NIC_arr = os.popen("ifconfig | grep -e 'flags' | sed \"s/:.*//g\"").read().split("\n")[1:-2] #find all the NIC
+    print(NIC_arr)
     interface_info = []
     #NIC = NIC_arr[0]
     #lines = read_in()#call by protocol

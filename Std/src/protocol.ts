@@ -11,6 +11,7 @@ var chance = 10;
 var shell = require('shelljs');
 const config = require('config');
 var directory = shell.pwd().toString();
+var AuthDevice = [];
 
 enum MessageType {
     HELLO = 0,
@@ -218,6 +219,10 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               console.log("Decrypted result: "+identifier);
               console.log("Decrypted IP address: "+sender_IP);
               var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
+              AuthDevice.push({
+                IP_address: sender_IP,
+                Mac_address: src_mac
+              });
               console.log(command);
               shell.exec(command);
               let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
@@ -269,15 +274,29 @@ const initBoardcastHandler = (server : dgram.Socket) => {
         var bytes  = CryptoJS.AES.decrypt(rece_msg, getChainKeyFromChain());
         var decryptMessage = bytes.toString(CryptoJS.enc.Utf8);
         if(decryptMessage.indexOf("<+>")!=-1 && decryptMessage.indexOf("|+|")!=-1){
-          var receIntArr = decryptMessage.split("<+>");
+          var receIntArr = decryptMessage.split("|+|");
           for(var i=0;i<receIntArr.length;i++){
             //console.log(receIntArr[i]);
-            var cur_ip = receIntArr[i].split("|+|")[0];
-            var cur_mac = receIntArr[i].split("|+|")[1];
-            console.log("Got the IP : "+cur_ip+" The reference mac address: "+cur_mac);
-            //var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
-            //console.log(command);
-            //shell.exec(command);
+
+            if(receIntArr[i].split("<+>").length==2){
+              var cur_ip = receIntArr[i].split("<+>")[0];
+              var cur_mac = receIntArr[i].split("<+>")[1];
+              console.log("Got the IP : "+cur_ip+" The reference mac address: "+cur_mac);
+              var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
+              console.log(command);
+              //shell.exec(command);
+              var arrFound = AuthDevice.filter(function(item) {
+                  return item.IP_address == cur_ip;
+              });
+              console.log("The finding result: "+arrFound.length);
+              if(arrFound.length==0){
+                AuthDevice.push({
+                  IP_address: cur_ip,
+                  Mac_address: cur_mac
+                });
+              }
+              console.log(AuthDevice);
+            }
           }
         }else{
           console.log("[!] That's not the correct boardcasting message, or decryption failure!");
