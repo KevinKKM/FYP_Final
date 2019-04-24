@@ -196,12 +196,14 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               console.log("Receive The Hello Message ETH!");
               if(message==chainHash){
                 console.log("Right person!!");
+                if(flag && checkReadyStatus()){
                 var dm_hello = util.format("|+|%s|+|%d|+|",chainHash,0);
                 //console.log("IP address :"+ip_addr);
                 let pysend_DM = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[dm_hello,src_mac]});
                 pysend_DM.on('message', function (message){
                   //console.log("Python Debug: "+message);
                   });
+                }
                 var cipherIdentifier = CryptoJS.AES.encrypt(getPublicFromWallet()+"<+>"+ip_addr, getChainKeyFromChain()).toString();
                 console.log(cipherIdentifier);
                 var send_message = util.format("|+|%s|+|%d|+|",cipherIdentifier,1);
