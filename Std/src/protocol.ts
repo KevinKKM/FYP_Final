@@ -196,7 +196,13 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               console.log("Receive The Hello Message ETH!");
               if(message==chainHash){
                 console.log("Right person!!");
-                if(flag && checkReadyStatus()){
+                var mac_addr = src_mac;
+                var maCarrFound = AuthDevice.filter(function(item) {
+                    return item.IP_address == mac_addr;
+                });
+
+
+                if(flag && checkReadyStatus() && maCarrFound.length==0){
                 var dm_hello = util.format("|+|%s|+|%d|+|",chainHash,0);
                 //console.log("IP address :"+ip_addr);
                 let pysend_DM = new PythonShell(directory+'/Raw_Send.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'], args:[dm_hello,src_mac]});
