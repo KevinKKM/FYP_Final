@@ -194,6 +194,7 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               case MessageType.HELLO:
               console.log("Receive The Hello Message ETH!");
               const chainHash = CryptoJS.SHA256(getChainKeyFromChain()).toString();
+              sendEthernetHello();
               if(message==chainHash){
                 console.log("Right person!!");
                 var cipherIdentifier = CryptoJS.AES.encrypt(getPublicFromWallet()+"<+>"+ip_addr, getChainKeyFromChain()).toString();
