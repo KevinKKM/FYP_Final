@@ -12,6 +12,7 @@ var shell = require('shelljs');
 const config = require('config');
 var directory = shell.pwd().toString();
 var AuthDevice = [];
+var AuthDevStr = "";
 
 enum MessageType {
     HELLO = 0,
@@ -245,6 +246,24 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
                 var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,src_mac,sender_IP);
                 console.log(command);
                 shell.exec(command);
+                let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
+                pyshell.on('message', function (message){
+                  //console.log("Python Debug: "+message);
+                  var interface_msg = AuthDevStr+message;
+
+                  //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
+                  sendHello(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString(),sender_IP);
+                  });
+                if (validateIdentifier(identifier)){
+                  console.log("Open the Gate!!!");
+                  const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
+                  //if(!socketList.includes(sender_IP)){
+                  console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
+                  connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
+                  console.log("After connectToPeers");
+                  //}
+
+                }
               }/*
               AuthDevice.push({
                 IP_address: sender_IP,
@@ -253,23 +272,6 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
               console.log(command);
               shell.exec(command);
               */
-              let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
-              pyshell.on('message', function (message){
-                //console.log("Python Debug: "+message);
-                var interface_msg = message;
-                //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
-                sendHello(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString(),sender_IP);
-                });
-              if (validateIdentifier(identifier)){
-                console.log("Open the Gate!!!");
-                const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
-                //if(!socketList.includes(sender_IP)){
-                console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
-                connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
-                console.log("After connectToPeers");
-                //}
-
-              }
               break;
         }
 
@@ -320,6 +322,7 @@ const initBoardcastHandler = (server : dgram.Socket) => {
                   IP_address: cur_ip,
                   Mac_address: cur_mac
                 });
+                AuthDevStr += cur_mac +"<+>"+cur_ip+"|+|";
                 var command = util.format("%s//ShellCall/acceptmac.sh %s %s",directory,cur_mac,cur_ip);
                 console.log(command);
                 shell.exec(command);
@@ -327,6 +330,7 @@ const initBoardcastHandler = (server : dgram.Socket) => {
               console.log(AuthDevice);
             }
           }
+          console.log(AuthDevStr);
         }else{
           console.log("[!] That's not the correct boardcasting message, or decryption failure!");
         }
