@@ -251,17 +251,17 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
                   console.log("Open the Gate!!!");
                   const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
                   //if(!socketList.includes(sender_IP)){
+                  console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
+                  connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
+                  console.log("After connectToPeers");
                   let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
                   pyshell.on('message', function (message){
                     //console.log("Python Debug: "+message);
-                    var interface_msg = AuthDevStr+message;
+                    var interface_msg = message;
                     console.log(interface_msg);
                     //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
                     sendHello(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString(),sender_IP);
                     });
-                  console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
-                  connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
-                  console.log("After connectToPeers");
                   //}
 
                 }
