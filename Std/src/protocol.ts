@@ -251,17 +251,17 @@ const EthernetMessageHandler = (server : dgram.Socket) => {
                   console.log("Open the Gate!!!");
                   const socketList = getSockets().map((s: any) => s._socket.remoteAddress).map(String);
                   //if(!socketList.includes(sender_IP)){
-                  console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
-                  connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
-                  console.log("After connectToPeers");
                   let pyshell = new PythonShell(directory+'/InterfaceBoardcast.py',{ pythonPath: '/usr/bin/python',pythonOptions: ['-u'],});
                   pyshell.on('message', function (message){
                     //console.log("Python Debug: "+message);
                     var interface_msg = AuthDevStr+message;
-
+                    console.log(interface_msg);
                     //console.log(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString());
                     sendHello(CryptoJS.AES.encrypt(interface_msg, getChainKeyFromChain()).toString(),sender_IP);
                     });
+                  console.log("// DEBUG: trying to connect with :" + sender_IP + ':' + config.get('Server.P2P_PORT'));
+                  connectToPeers('ws://' + sender_IP + ':' + config.get('Server.P2P_PORT'), getChainKeyFromChain());
+                  console.log("After connectToPeers");
                   //}
 
                 }
@@ -304,6 +304,7 @@ const initBoardcastHandler = (server : dgram.Socket) => {
         var interface_msg = "";
         var bytes  = CryptoJS.AES.decrypt(rece_msg, getChainKeyFromChain());
         var decryptMessage = bytes.toString(CryptoJS.enc.Utf8);
+        console.log(decryptMessage);
         if(decryptMessage.indexOf("<+>")!=-1 && decryptMessage.indexOf("|+|")!=-1){
           var receIntArr = decryptMessage.split("|+|");
           for(var i=0;i<receIntArr.length;i++){
@@ -359,6 +360,7 @@ const senderlock = () => {
   lock = false;
   var command = directory+'/ShellCall/IPenable.sh';
   console.log("NodeJS debug: "+command);
+
   //shell.exec(command);
   //shell.exec(directory+'/ShellCall/firewallon.sh');
 }
